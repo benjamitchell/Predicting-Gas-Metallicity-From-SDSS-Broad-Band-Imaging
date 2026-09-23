@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependencias
+        # Indice de PyTorch para CPU: la wheel con CUDA pesa ~2.5 GB y el
+        # runner no tiene GPU. Los tests no la necesitan.
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://download.pytorch.org/whl/cpu \
+                      --extra-index-url https://pypi.org/simple \
+                      torch torchvision
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src/ scripts/ tests/
+
+      - name: Tests
+        run: pytest tests/ -v
+
+      - name: Verificar que los scripts del pipeline son importables
+        # Pilla errores de sintaxis o imports rotos sin necesidad de datos.
+        run: |
+          for s in scripts/*.py; do
+            python -c "import ast,sys; ast.parse(open('$s').read())"
+          done
+          python -c "import gasmet.catalog, gasmet.images, gasmet.dataset"
+          python -c "import gasmet.model, gasmet.train, gasmet.evaluate, gasmet.plots"

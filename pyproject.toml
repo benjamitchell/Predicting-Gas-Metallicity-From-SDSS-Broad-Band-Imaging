@@ -16,6 +16,9 @@ authors = [
 ]
 dynamic = ["dependencies"]
 
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "ruff>=0.5"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
@@ -28,3 +31,9 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Los tests no tocan la red ni los datos descargados: corren en segundos y
+# sirven como chequeo en cada push.
+addopts = "-ra --strict-markers"

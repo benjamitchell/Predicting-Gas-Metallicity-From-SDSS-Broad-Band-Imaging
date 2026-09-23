@@ -1,5 +1,7 @@
 # Predicción de metalicidad gaseosa desde imágenes de banda ancha de SDSS
 
+[![CI](https://github.com/benjamitchell/Predicting-Gas-Metallicity-From-SDSS-Broad-Band-Imaging/actions/workflows/ci.yml/badge.svg)](https://github.com/benjamitchell/Predicting-Gas-Metallicity-From-SDSS-Broad-Band-Imaging/actions/workflows/ci.yml)
+
 Una CNN que estima la metalicidad de fase gaseosa de una galaxia, `12 + log(O/H)`,
 a partir únicamente de su imagen óptica — sin espectro.
 
@@ -158,8 +160,24 @@ src/gasmet/
   plots.py       figuras
 scripts/         los cuatro pasos del pipeline
 cluster/         submit scripts de SLURM
+tests/           tests unitarios, incluidos los de regresión del bug original
 docs/legacy/     el intento original y la auditoría de por qué falló
 ```
+
+## Desarrollo
+
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v
+ruff check src/ scripts/ tests/
+```
+
+Los tests no tocan la red ni los datos descargados: corren en segundos. Varios
+son de regresión sobre los errores que invalidaron el intento original —
+[test_images.py](tests/test_images.py) falla si alguien vuelve a poner un
+parámetro `band` en la URL del cutout, y
+[test_dataset.py](tests/test_dataset.py) falla si la normalización vuelve a ser
+por imagen en vez de con estadísticas compartidas.
 
 ## Referencias
 
