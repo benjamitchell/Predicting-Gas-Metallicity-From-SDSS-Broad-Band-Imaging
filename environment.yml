@@ -1,0 +1,32 @@
+# Entorno para NLHPC (Leftraru) y cualquier cluster con GPU NVIDIA.
+#
+# Se usa conda y no "module load python" porque los modulos del cluster estan
+# compilados por arquitectura (zen4 / legacy-skylake) y los nodos GPU son
+# Skylake: cargar el modulo equivocado revienta con "Illegal instruction".
+# Los paquetes de conda son binarios x86_64 portables.
+#
+#   conda env create -f environment.yml
+#   conda activate gasmet
+#   pip install -e .
+name: gasmet
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy>=1.24
+  - pandas>=2.0
+  - scipy>=1.10
+  - pyarrow>=14.0
+  - astropy>=5.3
+  - scikit-learn>=1.3
+  - matplotlib>=3.7
+  - requests>=2.31
+  - pillow>=10.0
+  - pyyaml>=6.0
+  - tqdm>=4.66
+  - pip:
+      # Wheels con CUDA 12.1, que es el CUDA/cuDNN que tiene el cluster.
+      - --extra-index-url https://download.pytorch.org/whl/cu121
+      - torch>=2.1
+      - torchvision>=0.16

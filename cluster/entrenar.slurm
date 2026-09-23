@@ -5,12 +5,17 @@
 #   sbatch cluster/entrenar.slurm                       # resnet34, por defecto
 #   sbatch cluster/entrenar.slurm cnn_simple baseline   # arquitectura y nombre
 #
-# AJUSTAR antes de usar: --partition, --account, --gres y el modulo de Python.
+# Configurado para NLHPC (Leftraru): particion v100, cuenta "users".
+# En otro cluster hay que ajustar --partition, --account y --gres.
+#
+# Se usa la particion v100 y no mi210: esas son AMD Instinct y necesitan
+# PyTorch compilado con ROCm en vez de CUDA.
 # ---------------------------------------------------------------------------
 #SBATCH --job-name=gasmet-train
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=8
+#SBATCH --partition=v100
+#SBATCH --account=users
+#SBATCH --gres=gpu:v100:1
+#SBATCH --cpus-per-task=12
 #SBATCH --mem=48G
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/train_%j.out
@@ -24,18 +29,20 @@ NOMBRE="${2:-$ARQUITECTURA}"
 mkdir -p logs
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
 
-# Los datos pesados van a scratch, no al home (que suele tener cuota chica).
-# AJUSTAR: la ruta de scratch depende del cluster.
-export GASMET_DATA_DIR="${GASMET_DATA_DIR:-/scratch/$USER/gasmet-data}"
-mkdir -p "$GASMET_DATA_DIR"
+# Los datos pesados viven fuera del repo. El home tiene cuota de 200 GB, que
+# alcanza de sobra para los ~6.5 GB del proyecto.
+export GASMET_DATA_DIR="${GASMET_DATA_DIR:-$HOME/gasmet-data}"
+
+# Conda en vez de "module load python": los modulos estan compilados por
+# arquitectura (zen4 / skylake) y los nodos GPU son Skylake, asi que cargar el
+# modulo equivocado revienta con "Illegal instruction". Los paquetes de conda
+# son binarios x86_64 portables y no tienen ese problema.
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate gasmet
+
+echo "Nodo: $(hostname) | inicio: $(date)"
 echo "Datos en: $GASMET_DATA_DIR"
-
-module load python/3.11 || echo "sin modules, se usa el python del entorno"
-module load cuda/12.1 || echo "sin modulo de cuda"
-source .venv/bin/activate
-
-echo "Nodo: $(hostname) | GPU: ${CUDA_VISIBLE_DEVICES:-?} | inicio: $(date)"
-nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
+nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
 
 python scripts/03_entrenar.py --arquitectura "$ARQUITECTURA" --nombre "$NOMBRE"
 python scripts/04_evaluar.py  --arquitectura "$ARQUITECTURA" --nombre "$NOMBRE"

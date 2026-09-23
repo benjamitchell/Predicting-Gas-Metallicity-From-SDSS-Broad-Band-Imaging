@@ -2,16 +2,24 @@
 # ---------------------------------------------------------------------------
 # Pasos 1 y 2: catalogo + descarga de cutouts.
 #
-# Va en una particion de CPU: no usa GPU y esta limitado por red, no por
-# computo. Para 100k galaxias con 8 workers toma varias horas.
-#
 #   sbatch cluster/descargar_datos.slurm
 #
-# AJUSTAR antes de usar: --partition, --account y el modulo de Python, que
-# dependen del cluster.
+# OJO: estos dos pasos necesitan salida a internet, no GPU. En muchos clusters
+# los nodos de computo no tienen red. Si este job falla con errores de conexion,
+# corre los dos scripts directamente en el login node dentro de tmux:
+#
+#     tmux new -s datos
+#     export GASMET_DATA_DIR=$HOME/gasmet-data
+#     conda activate gasmet
+#     python scripts/01_construir_catalogo.py
+#     python scripts/02_descargar_imagenes.py
+#     # Ctrl+B, luego D para salir sin matarlo
+#
+# Configurado para NLHPC (Leftraru): particion general, cuenta "users".
 # ---------------------------------------------------------------------------
 #SBATCH --job-name=gasmet-datos
-#SBATCH --partition=cpu
+#SBATCH --partition=general
+#SBATCH --account=users
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=12:00:00
@@ -23,16 +31,20 @@ set -euo pipefail
 mkdir -p logs
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
 
-# Los datos pesados van a scratch, no al home (que suele tener cuota chica).
-# AJUSTAR: la ruta de scratch depende del cluster.
-export GASMET_DATA_DIR="${GASMET_DATA_DIR:-/scratch/$USER/gasmet-data}"
-mkdir -p "$GASMET_DATA_DIR"
-echo "Datos en: $GASMET_DATA_DIR"
+export GASMET_DATA_DIR="${GASMET_DATA_DIR:-$HOME/gasmet-data}"
 
-module load python/3.11 || echo "sin modules, se usa el python del entorno"
-source .venv/bin/activate
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate gasmet
 
 echo "Nodo: $(hostname) | inicio: $(date)"
+echo "Datos en: $GASMET_DATA_DIR"
+
+# Falla temprano y con un mensaje claro si el nodo no tiene salida a internet.
+if ! curl -sS -o /dev/null --max-time 20 https://data.sdss.org/sas/dr8/common/sdss-spectro/redux/; then
+    echo "ERROR: este nodo no tiene salida a internet." >&2
+    echo "Corre los pasos 1 y 2 en el login node con tmux (ver cabecera)." >&2
+    exit 1
+fi
 
 python scripts/01_construir_catalogo.py
 python scripts/02_descargar_imagenes.py
