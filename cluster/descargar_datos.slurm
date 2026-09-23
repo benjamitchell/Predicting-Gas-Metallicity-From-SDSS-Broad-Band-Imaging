@@ -20,8 +20,12 @@
 #SBATCH --job-name=gasmet-datos
 #SBATCH --partition=general
 #SBATCH --account=users
+# NLHPC reasigna a la particion largemem los jobs con una razon memoria/CPU
+# alta (32G sobre 8 CPUs = 4096 MB/CPU dispara el filtro). Este trabajo no
+# necesita esa RAM: los FITS se leen con memmap y solo las columnas usadas,
+# con un peak de 2-3 GB. Con 1024 MB/CPU se queda en general.
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
+#SBATCH --mem=8G
 #SBATCH --time=12:00:00
 #SBATCH --output=logs/datos_%j.out
 #SBATCH --error=logs/datos_%j.err

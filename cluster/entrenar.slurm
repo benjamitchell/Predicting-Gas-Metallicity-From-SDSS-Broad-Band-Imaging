@@ -17,8 +17,13 @@
 # --gres=gpu:1 y no gpu:v100:1 - el filtro de submit de NLHPC parsea el tipo
 # y extrae el "100" de "v100", rechazando el job por pedir 100 GPUs.
 #SBATCH --gres=gpu:1
+# Cuidado con la razon memoria/CPU: NLHPC reasigna a largemem los jobs que la
+# tienen alta, y largemem NO TIENE GPU, asi que este job moriria ahi. 48G sobre
+# 12 CPUs daba 4096 MB/CPU, que es el valor que disparo el filtro en el job de
+# datos. 24G da 2048 MB/CPU y alcanza de sobra: las imagenes se leen por memmap
+# y el modelo vive en la GPU.
 #SBATCH --cpus-per-task=12
-#SBATCH --mem=48G
+#SBATCH --mem=24G
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/train_%j.out
 #SBATCH --error=logs/train_%j.err
