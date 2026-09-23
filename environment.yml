@@ -26,7 +26,16 @@ dependencies:
   - pyyaml>=6.0
   - tqdm>=4.66
   - pip:
-      # Wheels con CUDA 12.1, que es el CUDA/cuDNN que tiene el cluster.
-      - --extra-index-url https://download.pytorch.org/whl/cu121
-      - torch>=2.1
-      - torchvision>=0.16
+      # --index-url y NO --extra-index-url: el segundo es un indice ADICIONAL,
+      # asi que pip igual puede sacar de PyPI y elige la version mas nueva de
+      # ahi, que viene compilada con CUDA 13. Eso no sirve en este cluster por
+      # dos motivos independientes:
+      #
+      #   1. el driver (570.x) soporta hasta CUDA 12.8, no 13;
+      #   2. los builds cu130 ya no incluyen sm_70, que es la arquitectura de
+      #      las Tesla V100. Su get_arch_list() parte en sm_75.
+      #
+      # cu121 si incluye sm_70 y calza con el driver.
+      - --index-url https://download.pytorch.org/whl/cu121
+      - torch
+      - torchvision

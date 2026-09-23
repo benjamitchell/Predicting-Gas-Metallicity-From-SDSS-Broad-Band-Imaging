@@ -14,7 +14,9 @@
 #SBATCH --job-name=gasmet-train
 #SBATCH --partition=v100
 #SBATCH --account=users
-#SBATCH --gres=gpu:v100:1
+# --gres=gpu:1 y no gpu:v100:1 - el filtro de submit de NLHPC parsea el tipo
+# y extrae el "100" de "v100", rechazando el job por pedir 100 GPUs.
+#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=48G
 #SBATCH --time=08:00:00
