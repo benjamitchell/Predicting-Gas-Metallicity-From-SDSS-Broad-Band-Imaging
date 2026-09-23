@@ -1,0 +1,101 @@
+# ---------------------------------------------------------------------------
+# Prediccion de metalicidad gaseosa (12 + log(O/H)) a partir de imagenes
+# de banda ancha de SDSS.
+#
+# Metodologia de referencia: Wu & Boada (2019), arXiv:1810.12913.
+# Todos los parametros del pipeline viven aqui, no dentro de los scripts.
+# ---------------------------------------------------------------------------
+
+catalogo:
+  # Catalogos MPA-JHU DR8. ~2.4 GB en total, se descargan una sola vez.
+  base_url: "https://data.sdss.org/sas/dr8/common/sdss-spectro/redux"
+  archivos:
+    info:  "galSpecInfo-dr8.fits"   # 364 MB - RA, DEC, redshift, S/N del espectro
+    line:  "galSpecLine-dr8.fits"   # 1.7 GB - flujos de lineas de emision
+    extra: "galSpecExtra-dr8.fits"  # 339 MB - OH_P50 (metalicidad), LGM_TOT_P50 (masa)
+  dir_local: "data/catalog"
+  salida: "data/catalog/muestra.parquet"
+
+seleccion:
+  # Corte de senal/ruido sobre las lineas que alimentan el estimador de
+  # metalicidad de Tremonti+04.
+  snr_minimo: 5.0
+  lineas_snr: ["H_ALPHA", "H_BETA", "NII_6584", "OIII_5007"]
+
+  # Solo galaxias star-forming segun el diagrama BPT. En presencia de un AGN
+  # el calibrador de metalicidad no es valido. El paper no aplica este corte;
+  # nosotros si, y es una mejora defendible.
+  bptclass: 1
+
+  # Rango fisico de metalicidad aceptado (dex).
+  oh_min: 7.6
+  oh_max: 9.5
+
+  # Rango de redshift. Bajo z=0.02 la fibra de 3" cubre una fraccion muy chica
+  # de la galaxia; sobre z=0.38 la imagen ya casi no resuelve estructura.
+  z_min: 0.02
+  z_max: 0.38
+
+  # Calidad del espectro (mediana de S/N por pixel).
+  sn_median_minimo: 10.0
+
+muestreo:
+  # Distribucion NATURAL de metalicidad, como en Wu & Boada. No se reequilibra
+  # el target por bins: eso inflaria su varianza y haria el RMSE incomparable
+  # con la literatura. El desbalance se reporta con metricas por bin en la
+  # evaluacion, no se esconde reescribiendo el dataset.
+  n_galaxias: 100000   # null = usar todas las que sobrevivan a los cortes
+  semilla: 42
+
+imagenes:
+  # Cutout RGB del SkyServer. Es una composicion Lupton de las bandas g, r, i:
+  # son 3 canales con informacion distinta, NO 5 bandas separadas.
+  #
+  # OJO: este endpoint NO acepta un parametro `band`. Si se le pasa, lo ignora
+  # en silencio y devuelve siempre la misma imagen. Fue el error que invalido
+  # el intento anterior (ver docs/legacy/).
+  url: "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
+  tamano_px: 128
+  escala_arcsec_px: 0.296   # 128 px * 0.296"/px = 38" x 38", igual que el paper
+  dir_local: "data/images"
+  reintentos: 3
+  workers: 8
+  timeout_s: 30
+
+preprocesamiento:
+  # Normalizacion por canal con media/desviacion FIJAS, calculadas una sola vez
+  # sobre el split de train y reutilizadas en val y test.
+  #
+  # Nunca min-max por imagen: eso reescala cada galaxia por separado y borra
+  # el brillo y el color absolutos, que son justamente la senal que predice
+  # la metalicidad (el paper muestra que pasar de r a gri baja el RMSE de
+  # 0.138 a 0.085 dex).
+  normalizacion: "canal_fija"
+  estadisticas: "data/processed/norm_stats.json"
+
+  # El JPEG ya trae aplicado el stretch asinh de Lupton. No se vuelve a aplicar.
+  stretch: null
+
+  fraccion_train: 0.70
+  fraccion_val: 0.15
+  fraccion_test: 0.15   # se aparta y no se toca hasta el final
+  semilla_split: 42
+
+modelo:
+  # Transfer learning desde ImageNet, como el paper (ellos usan ResNet-34).
+  arquitectura: "resnet34"
+  preentrenado: true
+  dropout: 0.3
+
+entrenamiento:
+  epocas: 60
+  batch_size: 128
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  paciencia: 10          # early stopping sobre la perdida de validacion
+  scheduler: "cosine"
+  num_workers: 8
+  augmentation: true     # flips y rotaciones de 90 grados (la orientacion no
+                         # aporta informacion fisica sobre la metalicidad)
+  dir_resultados: "results"
+  semilla: 42

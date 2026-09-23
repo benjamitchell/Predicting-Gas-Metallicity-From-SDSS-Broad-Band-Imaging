@@ -1,0 +1,38 @@
+# Datos pesados (se regeneran con los scripts del pipeline)
+data/catalog/*.fits
+data/catalog/*.parquet
+data/images/
+data/processed/*.npy
+data/processed/*.npz
+
+# Resultados de entrenamiento
+results/**/checkpoints/
+results/**/*.pt
+results/**/*.ckpt
+logs/
+slurm_*_out.txt
+slurm_*_err.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
+.ruff_cache/
+.pytest_cache/
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Material de referencia del intento original: notebooks pesados (outputs
+# embebidos) y el PDF del paper. La auditoria vive en docs/legacy/README.md.
+docs/legacy/*.ipynb
+docs/legacy/*.pdf
+docs/legacy/_stripped/
+
+# Figuras generadas por el pipeline (se regeneran con 04_evaluar.py)
+figures/*.png
