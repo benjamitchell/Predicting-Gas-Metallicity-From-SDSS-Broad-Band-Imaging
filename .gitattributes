@@ -1,0 +1,20 @@
+# Normalizar a LF en el repositorio por defecto.
+* text=auto
+
+# Estos SIEMPRE se escriben con LF en el working copy, tambien en Windows.
+# Un script de shell con CRLF falla en Linux con "bad interpreter: /bin/bash^M",
+# que es un error cripticamente dificil de diagnosticar en un cluster.
+*.sh      text eol=lf
+*.slurm   text eol=lf
+*.py      text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+
+# Binarios: que git no los toque.
+*.png     binary
+*.jpg     binary
+*.fits    binary
+*.npy     binary
+*.npz     binary
+*.parquet binary
+*.pt      binary
