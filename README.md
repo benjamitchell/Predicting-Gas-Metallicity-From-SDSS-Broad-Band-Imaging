@@ -141,6 +141,12 @@ los números sean directamente comparables — junto a dos referencias obligator
   no lo supere no está extrayendo nada de las imágenes, por bonito que sea su R².
 - **Wu & Boada (2019):** RMSE 0.085 dex, NMAD 0.067 dex.
 
+El notebook agrega un tercer punto de comparación, más exigente: el **MZR de
+Tremonti+04 evaluado con la masa estelar medida**, que en nuestra muestra da
+0.119 dex. La CNN nunca ve la masa, así que superar esa cifra significa que
+está extrayendo de la imagen información que no se reduce a la relación
+masa-metalicidad.
+
 `scripts/04_evaluar.py` genera en [figures/](figures/): la relación masa-metalicidad
 de la muestra (control de sanidad del catálogo), las curvas de entrenamiento,
 predicción vs. real, los residuos, el error por bin de metalicidad y una grilla de
@@ -161,8 +167,19 @@ src/gasmet/
 scripts/         los cuatro pasos del pipeline
 cluster/         submit scripts de SLURM
 tests/           tests unitarios, incluidos los de regresión del bug original
-docs/legacy/     el intento original y la auditoría de por qué falló
+notebooks/       análisis de resultados
+docs/            metodología y la auditoría del intento original
 ```
+
+Dos documentos complementan este README:
+
+- **[docs/metodologia.md](docs/metodologia.md)** — justifica cada decisión del
+  pipeline: por qué cada corte, por qué *gri* y no *ugriz*, por qué la
+  distribución natural, y dónde se aparta a propósito del paper.
+- **[notebooks/analisis_resultados.ipynb](notebooks/analisis_resultados.ipynb)** —
+  el análisis científico: si la CNN aprende algo más que la relación
+  masa-metalicidad, si hay sistemáticos con masa, SFR o redshift, y el MZR
+  construido con las metalicidades predichas.
 
 ## Desarrollo
 
