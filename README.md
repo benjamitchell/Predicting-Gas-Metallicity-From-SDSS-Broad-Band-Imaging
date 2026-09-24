@@ -105,7 +105,12 @@ En un cluster con SLURM:
 ```bash
 sbatch cluster/descargar_datos.slurm
 sbatch cluster/entrenar.slurm resnet34
+sbatch cluster/entrenar.slurm cnn_simple baseline    # el baseline sin preentrenar
 ```
+
+Si la partición de GPU está copada, `cluster/entrenar_cpu.slurm` corre lo mismo
+en CPU. Sirve para la `cnn_simple` (0.1M parámetros); para la ResNet-34 conviene
+esperar la GPU.
 
 Los `.slurm` traen `--partition`, `--account` y los `module load` como marcadores;
 hay que ajustarlos al cluster.
