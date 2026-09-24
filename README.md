@@ -120,37 +120,84 @@ galaxias** — cerca de las 116.429 de Wu & Boada, lo que da confianza en que la
 selección está bien. La metalicidad va de 7.67 a 9.47 con mediana 8.99 y σ = 0.188
 dex. La MZR de la muestra reproduce la forma de Tremonti+04.
 
-**Corrida de validación** (2000 galaxias, ResNet-18, 6 épocas, CPU) — sirve para
-verificar la cadena, no como resultado:
+**El modelo.** ResNet-34 pre-entrenada, 100.000 galaxias, split 70/15/15.
+Entrenamiento en una Tesla V100: **15 minutos**, mejor época la 27, early
+stopping en la 37.
 
-| | RMSE | NMAD |
-|---|---|---|
-| Baseline (predecir la media) | 0.194 | — |
-| Esta corrida (n=301 test) | **0.120** | 0.090 |
-| Wu & Boada (2019) | 0.085 | 0.067 |
+Sobre las **14.998 galaxias del conjunto de test**, que no se tocan hasta el
+paso 4:
 
-Supera claramente al baseline con 1399 imágenes de entrenamiento, y la pérdida de
-validación seguía bajando en la última época.
+| Predictor | RMSE [dex] | NMAD [dex] | R² |
+|---|---|---|---|
+| Predecir siempre la media | 0.188 | 0.155 | 0.000 |
+| MZR de Tremonti+04 con masa estelar **medida** | 0.125 | 0.094 | 0.557 |
+| **CNN (solo imagen)** | **0.084** | **0.062** | **0.800** |
+| Wu & Boada (2019) | 0.085 | 0.067 | — |
 
-_Pendiente: el entrenamiento sobre la muestra completa (100k, ResNet-34, GPU)._
+El sesgo global es **+0.002 dex**, y el **84%** de las galaxias queda dentro de
+0.1 dex del valor espectroscópico.
 
-La evaluación reporta RMSE y NMAD en dex — las mismas métricas del paper, para que
-los números sean directamente comparables — junto a dos referencias obligatorias:
+### El resultado que importa
 
-- **Baseline de predecir siempre la media.** En el paper da ~0.20 dex. Un modelo que
-  no lo supere no está extrayendo nada de las imágenes, por bonito que sea su R².
-- **Wu & Boada (2019):** RMSE 0.085 dex, NMAD 0.067 dex.
+La CNN **le gana por 33% al MZR evaluado con la masa estelar medida** — un
+predictor que conoce un dato que la red nunca ve. Si el modelo solo estuviera
+estimando masa desde la imagen y aplicando la relación masa-metalicidad, su
+error tendría que ser *mayor*, porque estimar la masa agrega ruido sobre un
+método que ya parte del valor exacto.
 
-El notebook agrega un tercer punto de comparación, más exigente: el **MZR de
-Tremonti+04 evaluado con la masa estelar medida**, que en nuestra muestra da
-0.119 dex. La CNN nunca ve la masa, así que superar esa cifra significa que
-está extrayendo de la imagen información que no se reduce a la relación
-masa-metalicidad.
+Que le gane significa que **la imagen contiene información sobre la metalicidad
+que no se reduce al MZR**. Es la conclusión de la §6.2 de Wu & Boada, obtenida
+por el camino inverso: ellos predicen masa con la CNN y le aplican el MZR
+(0.12 dex, peor que sus 0.085 directos).
 
-`scripts/04_evaluar.py` genera en [figures/](figures/): la relación masa-metalicidad
-de la muestra (control de sanidad del catálogo), las curvas de entrenamiento,
-predicción vs. real, los residuos, el error por bin de metalicidad y una grilla de
-cutouts con sus predicciones.
+### Dos matices, porque el número global engaña
+
+**El error se concentra en los extremos.** Con la distribución natural, el
+grueso de la muestra vive cerca de 8.9 dex:
+
+| 12+log(O/H) | galaxias | RMSE | sesgo |
+|---|---:|---|---|
+| 8.05 | 20 | 0.274 | +0.247 |
+| 8.55 | 366 | 0.148 | +0.058 |
+| 8.95 | 3.412 | 0.069 | −0.000 |
+| **9.05** | **4.418** | **0.056** | −0.014 |
+| 9.25 | 118 | 0.136 | −0.119 |
+
+En el núcleo de la distribución el RMSE es **0.056 dex**. El 0.084 global está
+inflado por los bins extremos, poco poblados, donde el modelo tira hacia la
+media (pendiente de predicho vs. real: 0.804).
+
+**Los sistemáticos aparentes no son reales.** Las correlaciones crudas del
+residuo con SFR (−0.212) y redshift (−0.140) sugieren sesgos, pero al quitar la
+tendencia de regresión a la media **desaparecen**: pasan a +0.027 y +0.019. Eran
+la compresión hacia el centro proyectándose a través de variables correlacionadas
+con la metalicidad. Que la de redshift se anule es importante: descarta que el
+modelo esté leyendo tamaño aparente o brillo superficial en vez de física.
+
+### Comparabilidad con el paper
+
+Los 0.084 dex frente a los 0.085 de Wu & Boada **no son una comparación
+estrictamente pareja**: distinto data release (DR8 vs DR7), distinto tamaño de
+muestra y, sobre todo, **este trabajo aplica el corte BPT y el paper no**.
+Descartar AGN deja etiquetas de metalicidad más limpias, porque el calibrador
+de Tremonti no es válido en presencia de un núcleo activo. Lo defendible es
+decir que el resultado **reproduce** el del paper.
+
+### Figuras
+
+| | |
+|---|---|
+| ![Predicción vs real](figures/prediccion_vs_real.png) | ![Curvas de entrenamiento](figures/curvas_entrenamiento.png) |
+| ![Error por bin](figures/error_por_bin.png) | ![Relación masa-metalicidad](figures/mzr_muestra.png) |
+
+La MZR de la muestra reproduce la forma de Tremonti+04, lo que valida la cadena
+de selección del catálogo.
+
+El análisis completo está en
+[notebooks/analisis_resultados.ipynb](notebooks/analisis_resultados.ipynb).
+
+`scripts/04_evaluar.py` es el único paso que toca el conjunto de test. Genera
+las métricas, el desglose por bin y las figuras de [figures/](figures/).
 
 ## Estructura
 
