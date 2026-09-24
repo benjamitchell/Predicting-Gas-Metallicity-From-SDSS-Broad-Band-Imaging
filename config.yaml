@@ -61,6 +61,11 @@ imagenes:
   reintentos: 3
   workers: 8
   timeout_s: 30
+  # Un cutout puede volver practicamente negro si cae en una zona sin cobertura.
+  # Pasa las validaciones de tamano y modo pero no aporta informacion, asi que
+  # se descarta. El brillo medio de los canales va de 0 a 255; las galaxias
+  # tipicas de la muestra estan en torno a 7-8.
+  brillo_minimo: 1.0
 
 preprocesamiento:
   # Normalizacion por canal con media/desviacion FIJAS, calculadas una sola vez

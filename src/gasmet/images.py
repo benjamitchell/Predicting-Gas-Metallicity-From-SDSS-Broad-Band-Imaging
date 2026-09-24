@@ -45,6 +45,30 @@ def url_cutout(cfg: Config, ra: float, dec: float) -> str:
     return f"{cfg.imagenes.url}?{consulta}"
 
 
+def validar_imagen(img: Image.Image, esperado: tuple[int, int], brillo_minimo: float) -> None:
+    """Rechaza cutouts que llegaron mal. Lanza ValueError si algo no cuadra.
+
+    El servicio responde 200 incluso cuando no tiene nada que entregar, asi que
+    el codigo HTTP no basta para saber si la imagen sirve. Se revisan tres
+    cosas:
+
+    - el tamano, porque un cutout truncado desalinea el tensor;
+    - el modo, porque el pipeline asume tres canales RGB;
+    - el brillo medio, porque un cutout que cae en una zona sin cobertura vuelve
+      practicamente negro. Ese caso pasa las dos validaciones anteriores pero no
+      contiene informacion: la red solo puede predecir la media para ese objeto,
+      y encima lo hace sin que nada lo delate.
+    """
+    if img.size != esperado:
+        raise ValueError(f"tamano inesperado {img.size}, se esperaba {esperado}")
+    if img.mode != "RGB":
+        raise ValueError(f"modo inesperado {img.mode}")
+
+    brillo = float(np.asarray(img, dtype=np.float32).mean())
+    if brillo < brillo_minimo:
+        raise ValueError(f"imagen sin contenido: brillo medio {brillo:.3f} < {brillo_minimo}")
+
+
 def _ruta_imagen(dir_base: Path, img_id: int) -> Path:
     """Agrupa en subcarpetas de 1000 para no dejar 100k archivos en un solo dir."""
     sub = dir_base / f"{img_id // 1000:04d}"
@@ -69,10 +93,7 @@ def descargar_una(
         # fuera del footprint, asi que validamos que sea una imagen del tamano
         # pedido antes de aceptarla.
         img = Image.open(io.BytesIO(resp.content))
-        if img.size != esperado:
-            raise ValueError(f"tamano inesperado {img.size}, se esperaba {esperado}")
-        if img.mode != "RGB":
-            raise ValueError(f"modo inesperado {img.mode}")
+        validar_imagen(img, esperado, cfg.imagenes.brillo_minimo)
         return resp.content
 
     contenido = reintentar(intento, intentos=cfg.imagenes.reintentos)

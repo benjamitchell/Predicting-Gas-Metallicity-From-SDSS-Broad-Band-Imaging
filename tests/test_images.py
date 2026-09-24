@@ -11,10 +11,12 @@ Si alguien vuelve a agregar ese parametro, estos tests fallan.
 
 from urllib.parse import parse_qs, urlparse
 
+import numpy as np
 import pytest
+from PIL import Image
 
 from gasmet.config import Config, cargar
-from gasmet.images import PARAMS_VALIDOS, url_cutout
+from gasmet.images import PARAMS_VALIDOS, url_cutout, validar_imagen
 
 
 @pytest.fixture
@@ -71,3 +73,47 @@ def test_configuracion_pide_tres_canales_no_cinco_bandas(cfg):
         "El cutout JPEG no entrega bandas separadas. Para ugriz real hay que "
         "usar los FITS por banda del SAS, no ImgCutout."
     )
+
+
+# --------------------------------------------------------------------------
+# Validacion del contenido de los cutouts
+# --------------------------------------------------------------------------
+
+TAM = (128, 128)
+
+
+def _imagen(brillo: int, size=TAM, mode="RGB") -> Image.Image:
+    arr = np.full((size[1], size[0], 3), brillo, dtype=np.uint8)
+    return Image.fromarray(arr, mode="RGB").convert(mode)
+
+
+def test_acepta_una_imagen_normal():
+    validar_imagen(_imagen(brillo=8), TAM, brillo_minimo=1.0)
+
+
+def test_rechaza_imagen_del_tamano_equivocado():
+    with pytest.raises(ValueError, match="tamano inesperado"):
+        validar_imagen(_imagen(brillo=8, size=(64, 64)), TAM, brillo_minimo=1.0)
+
+
+def test_rechaza_imagen_que_no_es_rgb():
+    with pytest.raises(ValueError, match="modo inesperado"):
+        validar_imagen(_imagen(brillo=8, mode="L"), TAM, brillo_minimo=1.0)
+
+
+def test_rechaza_cutout_negro():
+    """Regresion: un cutout fuera del footprint vuelve negro con codigo 200.
+
+    Pasa las validaciones de tamano y modo, pero no contiene informacion. Si
+    entra al dataset, la red solo puede predecir la media para ese objeto y
+    nada lo delata. Se detecto uno en la grilla de ejemplos del primer
+    entrenamiento sobre 100k galaxias.
+    """
+    with pytest.raises(ValueError, match="sin contenido"):
+        validar_imagen(_imagen(brillo=0), TAM, brillo_minimo=1.0)
+
+
+@pytest.mark.parametrize("brillo", [0, 1])
+def test_rechaza_cutouts_casi_negros(brillo):
+    with pytest.raises(ValueError, match="sin contenido"):
+        validar_imagen(_imagen(brillo=brillo), TAM, brillo_minimo=2.0)
