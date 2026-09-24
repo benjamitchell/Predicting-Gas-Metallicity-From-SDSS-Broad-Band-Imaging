@@ -1,0 +1,53 @@
+Nodo: gn001 | inicio: Wed Sep 23 08:22:42 AM -03 2026
+Datos en: /home/minas01/gasmet-data
+Tesla V100-PCIE-16GB, 16384 MiB, 570.124.06
+08:23:01 [INFO] gasmet.model: Modelo: resnet34 (21.3M parametros entrenables)
+08:23:01 [INFO] gasmet.train: Dispositivo: Tesla V100-PCIE-16GB
+08:23:31 [INFO] gasmet.train: Epoca   1/60 | train 0.3754 | val 0.2627 | val RMSE 0.0963 dex  <- mejor
+08:23:55 [INFO] gasmet.train: Epoca   2/60 | train 0.2649 | val 0.2718 | val RMSE 0.0979 dex
+08:24:20 [INFO] gasmet.train: Epoca   3/60 | train 0.2471 | val 0.2426 | val RMSE 0.0925 dex  <- mejor
+08:24:44 [INFO] gasmet.train: Epoca   4/60 | train 0.2355 | val 0.2337 | val RMSE 0.0908 dex  <- mejor
+08:25:09 [INFO] gasmet.train: Epoca   5/60 | train 0.2316 | val 0.2246 | val RMSE 0.0890 dex  <- mejor
+08:25:33 [INFO] gasmet.train: Epoca   6/60 | train 0.2268 | val 0.2163 | val RMSE 0.0874 dex  <- mejor
+08:25:58 [INFO] gasmet.train: Epoca   7/60 | train 0.2232 | val 0.2143 | val RMSE 0.0870 dex  <- mejor
+08:26:22 [INFO] gasmet.train: Epoca   8/60 | train 0.2186 | val 0.3313 | val RMSE 0.1081 dex
+08:26:47 [INFO] gasmet.train: Epoca   9/60 | train 0.2152 | val 0.2055 | val RMSE 0.0852 dex  <- mejor
+08:27:11 [INFO] gasmet.train: Epoca  10/60 | train 0.2130 | val 0.2021 | val RMSE 0.0845 dex  <- mejor
+08:27:36 [INFO] gasmet.train: Epoca  11/60 | train 0.2091 | val 0.2312 | val RMSE 0.0903 dex
+08:28:00 [INFO] gasmet.train: Epoca  12/60 | train 0.2083 | val 0.2149 | val RMSE 0.0871 dex
+08:28:25 [INFO] gasmet.train: Epoca  13/60 | train 0.2053 | val 0.2266 | val RMSE 0.0894 dex
+08:28:49 [INFO] gasmet.train: Epoca  14/60 | train 0.1994 | val 0.2181 | val RMSE 0.0877 dex
+08:29:13 [INFO] gasmet.train: Epoca  15/60 | train 0.1955 | val 0.2103 | val RMSE 0.0861 dex
+08:29:38 [INFO] gasmet.train: Epoca  16/60 | train 0.1931 | val 0.2032 | val RMSE 0.0847 dex
+08:30:02 [INFO] gasmet.train: Epoca  17/60 | train 0.1901 | val 0.2030 | val RMSE 0.0847 dex
+08:30:27 [INFO] gasmet.train: Epoca  18/60 | train 0.1851 | val 0.2023 | val RMSE 0.0845 dex
+08:30:51 [INFO] gasmet.train: Epoca  19/60 | train 0.1807 | val 0.1991 | val RMSE 0.0838 dex  <- mejor
+08:31:16 [INFO] gasmet.train: Epoca  20/60 | train 0.1769 | val 0.2050 | val RMSE 0.0851 dex
+08:31:40 [INFO] gasmet.train: Epoca  21/60 | train 0.1738 | val 0.2066 | val RMSE 0.0854 dex
+08:32:05 [INFO] gasmet.train: Epoca  22/60 | train 0.1706 | val 0.1988 | val RMSE 0.0838 dex  <- mejor
+08:32:29 [INFO] gasmet.train: Epoca  23/60 | train 0.1625 | val 0.2363 | val RMSE 0.0913 dex
+08:32:53 [INFO] gasmet.train: Epoca  24/60 | train 0.1615 | val 0.2010 | val RMSE 0.0842 dex
+08:33:18 [INFO] gasmet.train: Epoca  25/60 | train 0.1564 | val 0.2010 | val RMSE 0.0842 dex
+08:33:42 [INFO] gasmet.train: Epoca  26/60 | train 0.1505 | val 0.1992 | val RMSE 0.0838 dex
+08:34:07 [INFO] gasmet.train: Epoca  27/60 | train 0.1485 | val 0.1972 | val RMSE 0.0834 dex  <- mejor
+08:34:31 [INFO] gasmet.train: Epoca  28/60 | train 0.1404 | val 0.2007 | val RMSE 0.0842 dex
+08:34:56 [INFO] gasmet.train: Epoca  29/60 | train 0.1392 | val 0.2070 | val RMSE 0.0855 dex
+08:35:20 [INFO] gasmet.train: Epoca  30/60 | train 0.1340 | val 0.2043 | val RMSE 0.0849 dex
+08:35:44 [INFO] gasmet.train: Epoca  31/60 | train 0.1304 | val 0.2034 | val RMSE 0.0847 dex
+08:36:09 [INFO] gasmet.train: Epoca  32/60 | train 0.1245 | val 0.2055 | val RMSE 0.0852 dex
+08:36:33 [INFO] gasmet.train: Epoca  33/60 | train 0.1206 | val 0.2024 | val RMSE 0.0845 dex
+08:36:58 [INFO] gasmet.train: Epoca  34/60 | train 0.1159 | val 0.2085 | val RMSE 0.0858 dex
+08:37:22 [INFO] gasmet.train: Epoca  35/60 | train 0.1113 | val 0.2007 | val RMSE 0.0842 dex
+08:37:46 [INFO] gasmet.train: Epoca  36/60 | train 0.1084 | val 0.2058 | val RMSE 0.0852 dex
+08:38:11 [INFO] gasmet.train: Epoca  37/60 | train 0.1045 | val 0.2045 | val RMSE 0.0850 dex
+08:38:11 [INFO] gasmet.train: Early stopping: 10 epocas sin mejorar
+08:38:11 [INFO] gasmet.train: Entrenamiento terminado en 15.2 min. Mejor: 0.0834 dex (epoca 27)
+08:38:20 [INFO] gasmet.model: Modelo: resnet34 (21.3M parametros entrenables)
+08:38:26 [INFO] gasmet.evaluate: --- Test (n=14998) ---
+08:38:26 [INFO] gasmet.evaluate:   RMSE  0.0841 dex   (baseline media: 0.1881 | Wu & Boada: 0.085)
+08:38:26 [INFO] gasmet.evaluate:   NMAD  0.0624 dex   (Wu & Boada: 0.067)
+08:38:26 [INFO] gasmet.evaluate:   MAE   0.0590 dex
+08:38:26 [INFO] gasmet.evaluate:   sesgo +0.0022 dex
+08:38:26 [INFO] gasmet.evaluate:   R2    0.8002
+08:38:28 [INFO] gasmet.plots: Figuras generadas en /home/minas01/BMitchell/gasmet/figures
+Fin: Wed Sep 23 08:39:09 AM -03 2026

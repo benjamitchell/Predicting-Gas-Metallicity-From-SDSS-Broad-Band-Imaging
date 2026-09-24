@@ -1,0 +1,26 @@
+Nodo: sn045 | inicio: Wed Sep 23 01:30:02 AM -03 2026
+Datos en: /home/minas01/gasmet-data
+01:35:18 [INFO] gasmet.catalog: Leyendo catalogos...
+01:35:27 [INFO] gasmet.catalog: Catalogo base: 1843200 espectros
+01:35:27 [INFO] gasmet.catalog: Cadena de seleccion:
+01:35:27 [INFO] gasmet.catalog:   catalogo completo                           1843200  (100.0%)
+01:35:27 [INFO] gasmet.catalog:   SPECOBJID valido                            1472581  ( 79.9%)
+01:35:27 [INFO] gasmet.catalog:   redshift sin warnings                       1382698  ( 75.0%)
+01:35:27 [INFO] gasmet.catalog:   espectro marcado confiable                   920019  ( 49.9%)
+01:35:27 [INFO] gasmet.catalog:   S/N mediana > 10.0                           588719  ( 31.9%)
+01:35:27 [INFO] gasmet.catalog:   S/N > 5.0 en 4 lineas                        189323  ( 10.3%)
+01:35:27 [INFO] gasmet.catalog:   star-forming (BPT)                           124009  (  6.7%)
+01:35:27 [INFO] gasmet.catalog:   metalicidad en (7.6, 9.5)                    123735  (  6.7%)
+01:35:27 [INFO] gasmet.catalog:   redshift en (0.02, 0.38)                     118103  (  6.4%)
+01:35:27 [INFO] gasmet.catalog:   coordenadas finitas                          118103  (  6.4%)
+01:35:27 [INFO] gasmet.catalog: Submuestreo aleatorio a 100000 galaxias
+01:35:27 [INFO] gasmet.catalog: Muestra final: 100000 galaxias | metalicidad 7.670 - 9.467 (mediana 8.987, sigma 0.188)
+01:35:27 [INFO] gasmet.catalog: Muestra guardada en /home/minas01/gasmet-data/catalog/muestra.parquet
+02:33:48 [INFO] gasmet.images: Descargadas 99978/100000 imagenes (22 fallos)
+02:35:06 [INFO] gasmet.images: Empaquetadas 99978 imagenes en /home/minas01/gasmet-data/processed/imagenes.npy (4.9 GB)
+02:35:06 [INFO] gasmet.dataset: Splits: {'train': 69984, 'test': 14998, 'val': 14996}
+02:35:19 [INFO] gasmet.dataset: Estadisticas de normalizacion -> /home/minas01/gasmet-data/processed/norm_stats.json
+02:35:19 [INFO] gasmet.dataset:   media canal: [0.0337, 0.0293, 0.0243]
+02:35:19 [INFO] gasmet.dataset:   std canal:   [0.0886, 0.0794, 0.0645]
+02:35:19 [INFO] gasmet.dataset:   target: mu=8.9343 sigma=0.1879
+Fin: Wed Sep 23 02:35:19 AM -03 2026
