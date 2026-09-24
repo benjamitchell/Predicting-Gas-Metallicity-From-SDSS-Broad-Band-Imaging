@@ -151,6 +151,32 @@ con información distinta**, no tres copias.
 > posible, pero mucho más pesado, y el paper muestra que *gri* basta para llegar
 > a 0.085 dex.
 
+### Cutouts vacíos
+
+El servicio responde `200 OK` aunque las coordenadas caigan en una zona sin
+cobertura: devuelve un JPEG del tamaño pedido, en RGB, pero **completamente
+negro**. Pasa cualquier validación estructural y entra al dataset sin que nada
+lo delate — la red solo puede predecir la media para ese objeto.
+
+Se detectó uno por inspección visual de la grilla de ejemplos del primer
+entrenamiento sobre 100k galaxias. Medido después sobre toda la muestra:
+
+| brillo medio (escala 0-255) | fracción |
+|---|---|
+| < 2.0 (vacías) | **0.03%** (~29 de 99.978) |
+| < 5.0 | 1.80% |
+| media global | 11.32 |
+
+El impacto es despreciable: unas 4-5 galaxias en el conjunto de test, y el RMSE
+cambiaría de 0.08409 a 0.08405 dex si se filtraran. **No justifica reentrenar**,
+pero sí arreglar el pipeline, porque es exactamente el tipo de fallo silencioso
+que invalidó el intento original.
+
+`validar_imagen` ahora exige un brillo medio mínimo, configurable en
+`imagenes.brillo_minimo` (por defecto 1.0). El umbral está elegido con cuidado:
+el 1.80% de las imágenes con brillo bajo 5.0 son galaxias débiles legítimas, así
+que cortar ahí habría descartado ~1800 objetos válidos.
+
 ### Por qué el tamaño angular es fijo
 
 38″ es un tamaño **angular**, no físico: a z = 0.02 abarca ~15 kpc y a z = 0.38
