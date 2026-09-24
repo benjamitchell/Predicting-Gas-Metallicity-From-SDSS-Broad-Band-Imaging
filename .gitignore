@@ -34,5 +34,8 @@ docs/legacy/*.ipynb
 docs/legacy/*.pdf
 docs/legacy/_stripped/
 
-# Figuras generadas por el pipeline (se regeneran con 04_evaluar.py)
-figures/*.png
+# Las figuras SI se versionan: son el resultado del proyecto y el README las
+# muestra. Son PNG de pocos cientos de KB.
+
+# Predicciones del test: ~120 KB, permiten rehacer el analisis sin reentrenar.
+# Los checkpoints (*.pt, cientos de MB) siguen excluidos mas arriba.
